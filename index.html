@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prehabilitation: scale di valutazione</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF2F3;--surface:#FFFFFF;--ink:#14262D;--muted:#566B73;--line:#D3DEE1;
+  --brand:#0B6577;--brand-ink:#FFFFFF;--sel:#D9EEF2;
+  --ok:#1B7550;--warn:#9A5B00;--bad:#B3261E;--info:#0B6577;--na:#6B7C83;
+  --ok-bg:#E2F2EA;--warn-bg:#FAEDD3;--bad-bg:#FBE3E0;--info-bg:#D9EEF2;--na-bg:#E6ECEE;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1A1F;--surface:#14252B;--ink:#E4EDEF;--muted:#9DB0B7;--line:#29404A;
+    --brand:#62C3D6;--brand-ink:#04222A;--sel:#18404B;
+    --ok:#62CC9B;--warn:#EDB654;--bad:#FF8F85;--info:#62C3D6;--na:#8CA0A8;
+    --ok-bg:#12352A;--warn-bg:#3A2E12;--bad-bg:#3C1D1B;--info-bg:#16393F;--na-bg:#1D3139;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1A1F;--surface:#14252B;--ink:#E4EDEF;--muted:#9DB0B7;--line:#29404A;
+  --brand:#62C3D6;--brand-ink:#04222A;--sel:#18404B;
+  --ok:#62CC9B;--warn:#EDB654;--bad:#FF8F85;--info:#62C3D6;--na:#8CA0A8;
+  --ok-bg:#12352A;--warn-bg:#3A2E12;--bad-bg:#3C1D1B;--info-bg:#16393F;--na-bg:#1D3139;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.app{max-width:1100px;margin:0 auto;padding:0 16px 32px}
+.top{padding:22px 0 10px}
+h1{font-size:clamp(1.6rem,4.6vw,2.2rem);line-height:1.15;margin:0 0 4px;letter-spacing:-.01em}
+.lead{margin:0 0 16px;color:var(--muted);max-width:62ch}
+.pt{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:10px;max-width:540px}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:.88rem;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],select{
+  font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);
+  border-radius:8px;padding:9px 10px;min-height:44px;width:100%}
+select{appearance:auto}
+
+.shell{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+.nav{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 8px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);scrollbar-width:thin}
+.grp{display:flex;gap:6px;align-items:center;flex:none}
+.grp+.grp{border-left:2px solid var(--line);padding-left:10px;margin-left:4px}
+.gt{font-size:.82rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.nv{display:flex;align-items:center;gap:8px;font:inherit;background:var(--surface);color:var(--ink);
+  border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;min-height:44px;cursor:pointer;white-space:nowrap}
+.nv[aria-current="page"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:700}
+.ns{display:none;margin-left:auto;font-size:.88rem;font-variant-numeric:tabular-nums;opacity:.85}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;flex:none;background:var(--c,var(--na));
+  box-shadow:0 0 0 2px var(--surface)}
+.dot[data-l="na"]{background:transparent;border:2px solid var(--na)}
+[data-l="ok"]{--c:var(--ok);--c-bg:var(--ok-bg)}
+[data-l="warn"]{--c:var(--warn);--c-bg:var(--warn-bg)}
+[data-l="bad"]{--c:var(--bad);--c-bg:var(--bad-bg)}
+[data-l="info"]{--c:var(--info);--c-bg:var(--info-bg)}
+[data-l="na"]{--c:var(--na);--c-bg:var(--na-bg)}
+
+@media (min-width:900px){
+  .shell{grid-template-columns:260px minmax(0,1fr);gap:28px;align-items:start}
+  .nav{flex-direction:column;overflow:visible;top:12px;gap:14px;padding:0}
+  .grp{flex-direction:column;align-items:stretch;gap:6px}
+  .grp+.grp{border-left:0;padding-left:0;margin-left:0}
+  .nv{border-radius:10px;justify-content:flex-start}
+  .ns{display:inline}
+}
+
+.view{--pad:18px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:20px var(--pad) 0;min-width:0}
+@media (min-width:900px){.view{--pad:28px;padding-top:26px}}
+.view[hidden]{display:none}
+.view h2{margin:0;font-size:1.5rem;line-height:1.2}
+.sub{margin:2px 0 0;color:var(--muted)}
+.intro{margin:14px 0 4px;max-width:70ch}
+.note{margin:12px 0 0;padding:10px 12px;background:var(--info-bg);border-radius:8px;font-size:.92rem;max-width:70ch}
+.note a{color:var(--brand);font-weight:700}
+
+.q{margin-top:8px}
+.sec{font-size:1.05rem;margin:24px 0 2px;padding-top:16px;border-top:1.5px solid var(--line)}
+.qi{padding:12px 0;border-bottom:1px solid var(--line)}
+.qi:last-child{border-bottom:0}
+.qi.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px}
+.qt{margin:0 0 8px;font-weight:700;max-width:70ch}
+.row .qt{margin:0;flex:1 1 300px}
+.hint{margin:-4px 0 8px;color:var(--muted);font-size:.88rem;max-width:70ch}
+.row .hint{display:none}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts.col{flex-direction:column;align-items:stretch}
+.o{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;
+  border:1.5px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;line-height:1.3}
+.o input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.o:has(input:checked){border-color:var(--brand);background:var(--sel);font-weight:700;box-shadow:inset 0 0 0 1px var(--brand)}
+.o:has(input:focus-visible){outline:3px solid var(--brand);outline-offset:2px}
+.o small{display:block;font-weight:400;color:var(--muted);margin-top:2px;font-size:.88rem}
+.o:has(input:checked) small{color:var(--ink)}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px 16px;margin-top:12px}
+.grid2 label{display:flex;flex-direction:column;gap:4px;font-size:.9rem;font-weight:700}
+.readout{align-self:end;padding:10px 12px;border-radius:8px;background:var(--na-bg);font-weight:700;min-height:44px;display:flex;align-items:center}
+.btn{font:inherit;font-weight:700;background:var(--brand);color:var(--brand-ink);border:0;border-radius:10px;padding:10px 16px;min-height:44px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+
+.bar{position:sticky;bottom:0;margin:22px calc(var(--pad)*-1) 0;padding:12px var(--pad) calc(12px + env(safe-area-inset-bottom,0px));
+  background:var(--surface);border-top:4px solid var(--c);border-radius:0 0 12px 12px;
+  display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;align-items:center;
+  box-shadow:0 -8px 16px -12px rgba(0,0,0,.45)}
+.bn{display:flex;flex-direction:column;min-width:64px}
+.bl{font-size:.8rem;color:var(--muted);font-weight:700}
+.bv{font-size:2rem;line-height:1.1;font-weight:700;color:var(--c);font-variant-numeric:tabular-nums}
+.bv.long{font-size:1.35rem}
+.bt{margin:0;font-size:.92rem;line-height:1.35}
+
+.sr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;width:100%;text-align:left;font:inherit;color:inherit;
+  background:transparent;border:0;border-bottom:1px solid var(--line);padding:12px 0;cursor:pointer;min-height:56px}
+.sr .sn{font-weight:700}
+.sr .sv{grid-column:1;color:var(--muted);font-size:.92rem}
+.sr .chip{grid-row:1 / span 2;grid-column:2}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;padding:3px 10px 3px 8px;border-radius:999px;background:var(--c-bg);color:var(--c);white-space:nowrap}
+.chip .dot{box-shadow:none;width:9px;height:9px}
+.grpt{margin:22px 0 0;font-size:1.05rem}
+.acts{margin:8px 0 0;padding-left:20px;max-width:72ch}
+.acts li{margin:6px 0}
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 22px}
+textarea{width:100%;min-height:200px;font:inherit;font-size:.9rem;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:10px;margin-bottom:20px}
+.foot{margin:24px 0 0;color:var(--muted);font-size:.84rem;max-width:80ch}
+.foot p{margin:6px 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>Prehabilitation</h1>
+    <p class="lead">Valutazione pre-operatoria del paziente fragile o anziano candidato a chirurgia maggiore. Nove scale in un unico percorso, con riepilogo finale.</p>
+    <div class="pt">
+      <label class="fld">Paziente (ID o iniziali)<input type="text" id="pid" autocomplete="off" placeholder="Evita il nome completo"></label>
+      <label class="fld">Data valutazione<input type="date" id="pdate"></label>
+    </div>
+  </header>
+  <div class="shell">
+    <nav class="nav" id="nav" aria-label="Scale di valutazione"></nav>
+    <main id="main"></main>
+  </div>
+  <footer class="foot">
+    <p>Strumento di supporto alla valutazione: non sostituisce il giudizio clinico. Nessun dato viene salvato o inviato; chiudendo o ricaricando la pagina le risposte vanno perse.</p>
+    <p>Fonti: NSQIP (Bilimoria 2013, ACS), DASI (Hlatky 1989), SARC-F (Malmstrom 2013), AUDIT-C (Bush 1998), HADS (Zigmond e Snaith 1983), Frailty Index per accumulo di deficit (Searle 2008), RCRI (Lee 1999; Duceppe 2017), STOP-Bang (Chung 2008), Clinical Frailty Scale 2.0 (Rockwood, Dalhousie University).</p>
+    <p>La HADS è protetta da copyright (GL Assessment): verifica le condizioni di licenza per l'uso nella tua struttura. Le diciture di DASI, SARC-F, AUDIT-C, HADS e Frailty Index riprendono il modulo «Allegato 2. Valutazione di ingresso», con refusi corretti; le altre scale sono traduzioni di lavoro da confrontare con le versioni validate.</p>
+  </footer>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const fmt=(x,d=2)=>String(Number(Number(x).toFixed(d))).replace(".",",");
+const YN=[["No",0],["Sì",1]];
+const B=(t,h)=>({t,h,o:YN});
+const F=(t,h)=>({t,h,o:YN,f:1});
+const G=(t)=>({t,o:[["Autonomo",0],["Aiuto parziale",0.5],["Dipendente",1]]});
+const LV={ok:"Nessun segnale",warn:"Da valutare",bad:"Segnale di rischio",info:"Registrato",na:"Da completare"};
+
+/* ---------- Definizione delle scale ---------- */
+const NS_FIELDS=[
+  {k:"cpt",t:"Codice CPT o procedura",type:"text"},
+  {k:"age",t:"Età (anni)",type:"number"},
+  {k:"sex",t:"Sesso",o:["Maschio","Femmina"]},
+  {k:"func",t:"Stato funzionale",o:["Indipendente","Parzialmente dipendente","Totalmente dipendente"]},
+  {k:"emerg",t:"Intervento in emergenza",o:["No","Sì"]},
+  {k:"asa",t:"Classe ASA",o:["I (sano)","II (malattia sistemica lieve)","III (malattia sistemica grave)","IV (minaccia costante per la vita)","V (moribondo)"]},
+  {k:"ster",t:"Steroidi cronici",o:["No","Sì"]},
+  {k:"asc",t:"Ascite nei 30 giorni precedenti",o:["No","Sì"]},
+  {k:"sepsis",t:"Sepsi sistemica nelle 48 ore precedenti",o:["Nessuna","SIRS","Sepsi","Shock settico"]},
+  {k:"vent",t:"Dipendenza da ventilatore",o:["No","Sì"]},
+  {k:"ca",t:"Neoplasia disseminata",o:["No","Sì"]},
+  {k:"dm",t:"Diabete",o:["No","Ipoglicemizzanti orali","Insulina"]},
+  {k:"htn",t:"Ipertensione in terapia",o:["No","Sì"]},
+  {k:"chf",t:"Scompenso cardiaco nei 30 giorni precedenti",o:["No","Sì"]},
+  {k:"dysp",t:"Dispnea",o:["Nessuna","Per sforzo moderato","A riposo"]},
+  {k:"smk",t:"Fumatore nell'ultimo anno",o:["No","Sì"]},
+  {k:"copd",t:"BPCO grave",o:["No","Sì"]},
+  {k:"dial",t:"Dialisi",o:["No","Sì"]},
+  {k:"arf",t:"Insufficienza renale acuta",o:["No","Sì"]},
+  {k:"h",t:"Altezza (cm)",type:"number"},
+  {k:"w",t:"Peso (kg)",type:"number"}
+];
+const NS_RES=[
+  {k:"r_ser",t:"Complicanza seria (%)"},
+  {k:"r_any",t:"Qualsiasi complicanza (%)"},
+  {k:"r_death",t:"Mortalità (%)"},
+  {k:"r_disc",t:"Dimissione in struttura (%)"},
+  {k:"r_los",t:"Degenza prevista (giorni)"}
+];
+
+const SC=[
+{id:"nsqip",g:"s",name:"NSQIP",sub:"Rischio chirurgico: ACS NSQIP Surgical Risk Calculator",custom:true,
+ intro:"Il modello NSQIP è proprietario e il calcolo avviene sul sito ufficiale dell'American College of Surgeons. Qui raccogli in un solo posto le 21 variabili richieste e registri i risultati per il riepilogo.",
+ calc:s=>{
+  const a=ans[s.id];
+  const filled=NS_FIELDS.filter(f=>a[f.k]!==undefined&&a[f.k]!=="").length;
+  const hasRes=NS_RES.some(f=>a[f.k]!==undefined&&a[f.k]!=="");
+  const v=k=>(a[k]!==undefined&&a[k]!=="")?a[k]:null;
+  if(hasRes){
+    const parts=[];
+    if(v("r_ser")!==null)parts.push(`complicanza seria ${v("r_ser")}%`);
+    if(v("r_any")!==null)parts.push(`qualsiasi complicanza ${v("r_any")}%`);
+    if(v("r_death")!==null)parts.push(`mortalità ${v("r_death")}%`);
+    if(v("r_disc")!==null)parts.push(`dimissione in struttura ${v("r_disc")}%`);
+    if(v("r_los")!==null)parts.push(`degenza ${v("r_los")} giorni`);
+    const main=v("r_ser")!==null?v("r_ser")+"%":(v("r_death")!==null?v("r_death")+"%":"✓");
+    return {lab:v("r_ser")!==null?"Complicanza seria":(v("r_death")!==null?"Mortalità":"Risultati"),main,lvl:"info",
+      text:"Dal calcolatore: "+parts.join(", ")+".",short:parts.slice(0,2).join(", "),
+      act:[`Rischio NSQIP registrato (${parts.join(", ")}): usalo nella discussione degli obiettivi di cura e nel consenso informato.`]};
+  }
+  return {lab:"Variabili",main:`${filled}/21`,lvl:"na",
+    text:filled===21?"Variabili complete. Apri il calcolatore ufficiale e riporta qui i risultati.":"Compila le variabili mancanti, poi inseriscile nel calcolatore ufficiale.",short:`${filled}/21 variabili`};
+ }},
+
+{id:"dasi",g:"s",name:"DASI",sub:"Duke Activity Status Index: capacità funzionale",
+ intro:"Chiedi al paziente: «È capace di…». Ogni «Sì» vale i punti DASI indicati; punteggio da 0 a 58,2. VO₂peak stimato = 0,43 × DASI + 9,6.",
+ row:true,
+ items:[
+  ["Mangiare, vestirsi, lavarsi, andare in bagno da solo?",2.75],
+  ["Camminare per la casa e intorno ad essa (esempio, nel giardino)?",1.75],
+  ["Camminare attorno ad un isolato su terreno pianeggiante?",2.75],
+  ["Salire un piano di scale? Cammina in salita?",5.5],
+  ["Fare una breve corsa?",8],
+  ["Fare lavori domestici leggeri come spolverare o lavare i piatti?",2.7],
+  ["Fare lavori domestici moderati come usare aspirapolvere, spazzare o portare la spesa?",3.5],
+  ["Fare lavori domestici pesanti come lavare il pavimento o spostare mobili?",8],
+  ["Fare lavori in giardino come usare decespugliatore, un tagliaerba o rastrellare?",4.5],
+  ["Avere rapporti sessuali?",5.25],
+  ["Partecipare ad attività ricreative con impegno fisico moderato come ballo, bocce, passeggiate o bici?",6],
+  ["Partecipare a sport faticosi come nuoto, tennis, calcio, basket o sci?",7.5]
+ ].map(([t,w])=>({t,o:[["No",0],["Sì",w]]})),
+ calc:s=>{
+  const {sum,n,N}=sumItems(s); const d=Math.round(sum*100)/100;
+  if(n<N)return {lab:"DASI",main:fmt(d),lvl:"na",text:`Rispondi a tutte le domande (${n}/${N}).`};
+  const vo2=0.43*d+9.6, met=vo2/3.5, low=d<=34;
+  return {lab:"DASI",main:fmt(d),lvl:low?"bad":"ok",
+   text:`VO₂peak stimato ${fmt(vo2,1)} mL/kg/min, circa ${fmt(met,1)} MET. `+(low?"Con DASI ≤34 la capacità funzionale è ridotta, condizione associata a maggior rischio di eventi cardiaci e complicanze post-operatorie.":"DASI >34: capacità funzionale non ridotta secondo la soglia di rischio peri-operatorio."),
+   short:`${fmt(d)} su 58,2 (${fmt(met,1)} MET)`,
+   act:low?["Capacità funzionale ridotta (DASI ≤34): considerare test del cammino dei 6 minuti o CPET e un programma di esercizio aerobico e di resistenza."]:[]};
+ }},
+
+{id:"sarcf",g:"s",name:"SARC-F",sub:"Screening della sarcopenia",
+ intro:"Cinque domande, punteggio da 0 a 10. Un punteggio ≥4 indica sarcopenia probabile.",
+ items:[
+  {t:"Quanta difficoltà ha ad alzare e trasportare un peso di circa 4,5 kg?",o:[["Nessuna",0],["Abbastanza",1],["Molta",2]]},
+  {t:"Quanta difficoltà ha a camminare intorno ad una stanza?",o:[["Nessuna",0],["Abbastanza",1],["Molta",2]]},
+  {t:"Quanta difficoltà ha ad alzarsi da una sedia o dal letto?",o:[["Nessuna",0],["Abbastanza",1],["Molta",2]]},
+  {t:"Quanta difficoltà ha a salire 10 scalini?",o:[["Nessuna",0],["Abbastanza",1],["Molta o impossibilitato",2]]},
+  {t:"Quante volte è caduto negli ultimi 12 mesi?",o:[["Mai",0],["1–3 cadute",1],["4 o più cadute",2]]}
+ ],
+ calc:s=>{
+  const {sum,n,N}=sumItems(s);
+  if(n<N)return {lab:"SARC-F",main:String(sum),lvl:"na",text:`Rispondi a tutte le domande (${n}/${N}).`};
+  const pos=sum>=4;
+  return {lab:"SARC-F",main:String(sum),lvl:pos?"bad":"ok",
+   text:pos?"Sarcopenia probabile (≥4): associata a peggiori esiti funzionali e post-operatori.":"Sotto soglia (<4): sarcopenia poco probabile.",
+   short:`${sum} su 10`,
+   act:pos?["Sospetta sarcopenia: valutazione nutrizionale, apporto proteico 1,2–1,5 g/kg/die e esercizio di resistenza supervisionato."]:[]};
+ }},
+
+{id:"auditc",g:"s",name:"AUDIT-C",sub:"Screening del consumo rischioso di alcol",
+ intro:"Tre domande, punteggio da 0 a 12. Soglia di positività: ≥4 negli uomini, ≥3 nelle donne.",
+ items:[
+  {k:"sex",nosc:true,t:"Sesso (serve per la soglia)",o:[["Uomo",0],["Donna",1]]},
+  {t:"Con quale frequenza consuma bevande alcoliche?",o:[["Mai",0],["1 volta al mese o meno",1],["2–4 volte al mese",2],["2–3 volte a settimana",3],["4 o più volte a settimana",4]]},
+  {t:"Quanti bicchieri standard di bevande alcoliche consuma in media al giorno?",h:"1 bicchiere standard = circa 10–12 g di alcol: un bicchiere di vino, una birra piccola, un bicchierino di superalcolico.",o:[["1 o 2",0],["3 o 4",1],["5 o 6",2],["7–9",3],["10 o più",4]]},
+  {t:"Con quale frequenza le è capitato di bere sei o più bicchieri di bevande alcoliche in un'unica occasione?",o:[["Mai",0],["Meno di 1 volta al mese",1],["1 volta al mese",2],["1 volta a settimana",3],["Ogni giorno o quasi",4]]}
+ ],
+ calc:s=>{
+  const {sum,n,N}=sumItems(s); const sex=ans[s.id].sex;
+  if(n<N)return {lab:"AUDIT-C",main:String(sum),lvl:"na",text:`Rispondi a tutte le domande (${n}/${N}).`};
+  const cut=sex===0?4:(sex===1?3:null);
+  let lvl,text;
+  if(cut===null){
+    if(sum>=4){lvl="warn";text="Positivo con entrambe le soglie (≥4).";}
+    else if(sum===3){lvl="warn";text="Positivo per le donne (≥3), negativo per gli uomini (≥4): indica il sesso.";}
+    else{lvl="ok";text="Negativo con entrambe le soglie.";}
+  }else if(sum>=cut){
+    lvl=sum>=8?"bad":"warn";
+    text=`Screening positivo (soglia ≥${cut}). `+(sum>=8?"Punteggio alto: considerare l'AUDIT completo.":"Valutare un intervento breve.");
+  }else{lvl="ok";text=`Screening negativo (soglia ≥${cut}).`;}
+  return {lab:"AUDIT-C",main:String(sum),lvl,text,short:`${sum} su 12`,
+    act:lvl==="ok"?[]:["AUDIT-C positivo: intervento breve e astensione dall'alcol, idealmente da almeno 4 settimane prima dell'intervento."]};
+ }},
+
+{id:"hads",g:"s",name:"HADS",sub:"Hospital Anxiety and Depression Scale",
+ intro:"Il paziente indica per ogni affermazione la risposta più vicina al suo stato emozionale. Ansia (A) e depressione (D) hanno 7 item ciascuna, punteggio 0–21.",
+ items:[
+  {sub:"A",t:"A1. Mi sento teso e molto nervoso",o:[["Per la maggior parte del tempo",3],["Per molto tempo",2],["A volte",1],["Mai",0]]},
+  {sub:"D",t:"D2. Riesco ancora a provare piacere per le cose che ho sempre fatto volentieri",o:[["Proprio come una volta",0],["Non proprio come una volta",1],["Solo in parte",2],["Per niente",3]]},
+  {sub:"A",t:"A3. Provo un sentimento di paura come se potesse accadere qualcosa di terribile",o:[["Sicuramente e in maniera intensa",3],["Sì, ma in maniera non troppo intensa",2],["Un po' ma non da preoccuparmene",1],["Per niente",0]]},
+  {sub:"D",t:"D4. Riesco a ridere e a vedere il lato divertente delle cose",o:[["Proprio come ho sempre fatto",0],["Non proprio come un tempo",1],["Sicuramente non come un tempo",2],["Per niente",3]]},
+  {sub:"A",t:"A5. Mi vengono in mente pensieri preoccupanti",o:[["Per la maggior parte del tempo",3],["Per molto tempo",2],["A volte, non troppo spesso",1],["Solo in qualche occasione",0]]},
+  {sub:"D",t:"D6. Mi sento di buon umore",o:[["Mai",3],["Raramente",2],["A volte",1],["Per la maggior parte del tempo",0]]},
+  {sub:"A",t:"A7. Riesco a stare seduto tranquillo e a sentirmi rilassato",o:[["Certamente",0],["Di solito",1],["Raramente",2],["Per nulla",3]]},
+  {sub:"D",t:"D8. Mi sento rallentato nei movimenti",o:[["Quasi sempre",3],["Molto spesso",2],["A volte",1],["Mai",0]]},
+  {sub:"A",t:"A9. Mi sento nervoso, come con un senso di tensione allo stomaco",o:[["Mai",0],["A volte",1],["Piuttosto spesso",2],["Molto spesso",3]]},
+  {sub:"D",t:"D10. Ho perso interesse per il mio aspetto fisico",o:[["Completamente",3],["Non quanto dovrei",2],["Forse non abbastanza",1],["Me ne prendo cura come al solito",0]]},
+  {sub:"A",t:"A11. Mi sento irrequieto e incapace di stare fermo",o:[["Moltissimo",3],["Molto",2],["Non molto",1],["Per niente",0]]},
+  {sub:"D",t:"D12. Guardo con piacere alle cose future",o:[["Quanto sempre",0],["Un po' meno di prima",1],["Decisamente meno di prima",2],["Quasi per nulla",3]]},
+  {sub:"A",t:"A13. Mi vengono improvvise crisi di panico",o:[["Molto spesso",3],["Piuttosto spesso",2],["Non molto spesso",1],["Mai",0]]},
+  {sub:"D",t:"D14. Provo piacere leggendo un buon libro o seguendo la radio o la televisione",o:[["Spesso",0],["A volte",1],["Non di frequente",2],["Molto raramente",3]]}
+ ],
+ calc:s=>{
+  const a=ans[s.id]; let A=0,D=0,n=0;
+  s.items.forEach(it=>{const x=a[it.k]; if(x!==undefined){n++; if(it.sub==="A")A+=it.o[x][1]; else D+=it.o[x][1];}});
+  if(n<14)return {lab:"HADS",main:"–",lvl:"na",text:`Rispondi a tutte le domande (${n}/14).`};
+  const cat=x=>x>=11?2:(x>=8?1:0), nm=["nella norma","borderline","probabile caso clinico"];
+  const w=Math.max(cat(A),cat(D));
+  const act=[];
+  if(w>=1)act.push(`HADS ${w===2?"≥11":"≥8"} (ansia ${A}, depressione ${D}): offrire supporto psicologico${w===2?" e considerare l'invio specialistico":""}.`);
+  return {lab:"HADS",main:`A ${A} / D ${D}`,lvl:["ok","warn","bad"][w],
+   text:`Ansia ${A}/21 (${nm[cat(A)]}), depressione ${D}/21 (${nm[cat(D)]}). Soglie per ciascuna sottoscala: 0–7 normale, 8–10 borderline, ≥11 caso probabile.`,
+   short:`Ansia ${A}, depressione ${D}`,act};
+ }},
+
+{id:"fi",g:"s",name:"Frailty Index",sub:"Indice di fragilità: 36 domande sì/no",row:true,
+ intro:"Il punteggio totale è il numero di «Sì». L'indice è dato dai «Sì» divisi per le domande valutate; servono almeno 30 risposte. Il simbolo 🚩 indica un parametro sfavorevole.",
+ items:[
+  F("Si sente frequentemente stanco/a e incapace di svolgere le attività quotidiane?"),
+  F("Ha bisogno di assistenza nel muoversi?","Aiuto di una persona, stampelle, deambulatore, bastone, sedia a rotelle"),
+  F("È mai caduta/o negli ultimi 12 mesi?"),
+  B("Ha bisogno di assistenza per svolgere le attività quotidiane?"),
+  B("Le capita di avere poco equilibrio o di sentirsi instabile?"),
+  B("Esce di casa meno di una volta a settimana?"),
+  B("Vive solo/a o sente la mancanza di persone e sostegno intorno a lei?"),
+  F("Ha problemi di anemia?"),
+  B("Ha la fibrillazione atriale o anomalie del ritmo cardiaco?"),
+  B("Ha mai avuto un infarto o dolore toracico di origine cardiaca (angina)?"),
+  F("Ha l'insufficienza cardiaca o scompenso cardiaco?"),
+  B("Ha problemi a carico delle valvole cardiache?"),
+  B("Soffre di pressione arteriosa alta? Assume antipertensivi?"),
+  B("Ha problemi circolatori alle arterie delle gambe o alle carotidi?"),
+  F("Prova fatica a respirare a riposo o durante/dopo lo sforzo?"),
+  F("Ha malattie respiratorie?","Ad es. bronchite cronica, enfisema, asma, fibrosi"),
+  B("Ha il diabete?","Se sì, annota se assume insulina"),
+  B("Ha mai sofferto di problemi alla tiroide?","Ad es. ipotiroidismo o ipertiroidismo"),
+  B("Ha mai avuto problemi renali?"),
+  B("Ha l'incontinenza urinaria?"),
+  B("Ha problemi urologici?","A carico di prostata, vescica, ureteri"),
+  F("Sente di avere problemi di memoria? Ha ricevuto una diagnosi di disturbo cognitivo o demenza? Ha mai avuto confusione dopo un intervento chirurgico?"),
+  F("Ha il morbo di Parkinson?"),
+  B("Ha avuto perdite di coscienza?","Ad esempio sincope o epilessia"),
+  B("Ha mai avuto un ictus o un TIA?"),
+  F("Ha problemi di insonnia o di apnee notturne?"),
+  B("Presenta problemi di udito?"),
+  B("Presenta problemi di vista?"),
+  B("Ha l'osteoporosi?"),
+  B("Ha mai avuto fratture da fragilità ossea?","Fratture dopo caduta"),
+  B("Soffre di artrite/artrosi?"),
+  B("Ha problemi podologici?","A carico dei piedi"),
+  B("Ha ulcere cutanee?"),
+  B("Soffre di ulcera gastrica e/o duodenale?"),
+  F("Ha perso peso e/o ha una riduzione dell'appetito?"),
+  B("Assume 5 o più farmaci?")
+ ],
+ calc:s=>{
+  const a=ans[s.id]; let yes=0,n=0; const fl=[];
+  s.items.forEach(it=>{const x=a[it.k]; if(x!==undefined){n++; if(x===1){yes++; if(it.f)fl.push(it.t.replace(/\?.*$/,""));}}});
+  if(n<30)return {lab:"Frailty Index",main:String(yes),lvl:"na",text:`Risposte ${n} su ${s.items.length}: ne servono almeno 30.`};
+  const fi=yes/n;
+  const lvl=fi>=0.25?"bad":(fi>=0.10?"warn":"ok");
+  const cl=fi>=0.45?"fragilità severa":(fi>=0.25?"fragile":(fi>=0.10?"pre-fragile":"robusto"));
+  const act=[];
+  if(fi>=0.25)act.push("Frailty Index ≥0,25: valutazione geriatrica multidimensionale e programma di prehabilitation multimodale (esercizio, nutrizione, cognitivo).");
+  if(fl.length)act.push(`Parametri sfavorevoli (🚩) presenti nel Frailty Index: ${fl.join("; ")}.`);
+  return {lab:"Numero di Sì",main:String(yes),lvl,
+   text:`Indice ${fmt(fi)} (${yes} su ${n}): paziente ${cl}. Parametri sfavorevoli 🚩: ${fl.length}. Soglie usate per l'indice: <0,10 robusto, 0,10–0,24 pre-fragile, ≥0,25 fragile.`,
+   short:`${yes} Sì su ${n}, indice ${fmt(fi)} (${cl})`,act};
+ }},
+
+{id:"rcri",g:"a",name:"RCRI",sub:"Revised Cardiac Risk Index",def:0,
+ intro:"Un punto per ciascun fattore presente. Le risposte predefinite sono «No».",
+ items:[
+  {k:"surg",t:"Chirurgia ad alto rischio",h:"Intraperitoneale, intratoracica o vascolare sovra-inguinale",o:YN},
+  {k:"ihd",t:"Cardiopatia ischemica",h:"Pregresso infarto, test da sforzo positivo, angina in atto, uso di nitrati o onde Q all'ECG",o:YN},
+  {k:"chf",t:"Scompenso cardiaco congestizio",h:"Anamnesi di scompenso, edema polmonare, dispnea parossistica notturna, congestione alla radiografia",o:YN},
+  {k:"cva",t:"Malattia cerebrovascolare",h:"Pregresso ictus o TIA",o:YN},
+  {k:"dm",t:"Diabete in terapia insulinica",o:YN},
+  {k:"cr",t:"Creatinina pre-operatoria >2,0 mg/dL",h:"Equivalente a >177 µmol/L",o:YN}
+ ],
+ calc:s=>{
+  const {sum}=sumItems(s);
+  if(!touched[s.id])return {lab:"RCRI",main:"–",lvl:"na",text:"Rispondi alle domande: le risposte predefinite sono «No»."};
+  const i=Math.min(sum,3), lee=[0.4,0.9,6.6,11][i], duc=[3.9,6,10.1,15][i];
+  const lvl=sum===0?"ok":(sum===1?"warn":"bad");
+  const act=[];
+  if(sum>=1)act.push("RCRI ≥1: considerare NT-proBNP o BNP pre-operatorio (indicazione CCS 2017) e rivalutazione cardiologica secondo le linee guida.");
+  if(sum>=2)act.push("RCRI ≥2: rischio cardiaco elevato, valutare ottimizzazione terapeutica e monitoraggio peri-operatorio intensivo.");
+  return {lab:"RCRI",main:`${sum}${sum>=3?"+":""}`,lvl,
+   text:`Rischio di eventi cardiaci maggiori a 30 giorni: ${fmt(lee,1)}% nella coorte originale (Lee 1999), ${fmt(duc,1)}% nella coorte più recente (Duceppe 2017).`,
+   short:`${sum} punti (rischio ${fmt(duc,1)}%)`,act};
+ }},
+
+{id:"stopbang",g:"a",name:"STOP-Bang",sub:"Screening delle apnee ostruttive del sonno",def:0,
+ intro:"Un punto per ogni risposta affermativa, punteggio da 0 a 8. Le risposte predefinite sono «No».",
+ row:true,
+ items:[
+  {k:"snore",t:"Russa forte, tanto da essere sentito attraverso una porta chiusa?",o:YN},
+  {k:"tired",t:"Si sente spesso stanco o sonnolento durante il giorno?",o:YN},
+  {k:"obs",t:"Qualcuno ha osservato pause del respiro durante il sonno?",o:YN},
+  {k:"bp",t:"Ha ipertensione arteriosa o è in trattamento per questa?",o:YN},
+  {k:"bmi",t:"BMI >35 kg/m²",o:YN},
+  {k:"age",t:"Età >50 anni",o:YN},
+  {k:"neck",t:"Circonferenza del collo >40 cm",o:YN},
+  {k:"sex",t:"Sesso maschile",o:YN}
+ ],
+ calc:s=>{
+  const {sum}=sumItems(s); const a=ans[s.id];
+  if(!touched[s.id])return {lab:"STOP-Bang",main:"–",lvl:"na",text:"Rispondi alle domande: le risposte predefinite sono «No»."};
+  const stop=a.snore+a.tired+a.obs+a.bp;
+  const hi=sum>=5||(stop>=2&&(a.bmi||a.sex||a.neck));
+  const lvl=hi?"bad":(sum>=3?"warn":"ok");
+  const cl=hi?"alto rischio di OSA":(sum>=3?"rischio intermedio di OSA":"basso rischio di OSA");
+  const act=[];
+  if(hi)act.push("STOP-Bang ad alto rischio: considerare polisonnografia e CPAP pre-operatoria, e precauzioni peri-operatorie (risparmio di oppioidi e sedativi, monitoraggio prolungato).");
+  else if(sum>=3)act.push("STOP-Bang intermedio: valutare ulteriori accertamenti (es. bicarbonati sierici) e adottare precauzioni su oppioidi e sedativi.");
+  return {lab:"STOP-Bang",main:String(sum),lvl,
+   text:`${cl[0].toUpperCase()+cl.slice(1)} (${sum}/8). Soglie: 0–2 basso, 3–4 intermedio, 5–8 alto; è alto anche con almeno 2 voci STOP e BMI >35, collo >40 cm o sesso maschile.`,
+   short:`${sum} su 8 (${cl})`,act};
+ }},
+
+{id:"cfs",g:"a",name:"Clinical Frailty Scale",sub:"CFS 2.0, giudizio clinico su nove livelli",
+ intro:"Scegli il livello che descrive meglio il paziente nelle due settimane precedenti la malattia acuta. Nei pazienti con demenza il livello di fragilità corrisponde in genere allo stadio della demenza.",
+ items:[{k:"cfs",t:"Livello di fragilità",o:[
+  ["1. Molto in forma",1,"Robusto, attivo, energico e motivato. Fa regolarmente esercizio; tra i più in forma per la sua età."],
+  ["2. In forma",2,"Nessun sintomo di malattia attiva, ma meno in forma del livello 1. Fa attività fisica occasionale."],
+  ["3. In buon controllo",3,"Patologie ben controllate, ma non attivo oltre la normale camminata."],
+  ["4. Fragilità molto lieve",4,"Non dipende dagli altri nella vita quotidiana, ma i sintomi limitano le attività: spesso rallentato o stanco durante il giorno."],
+  ["5. Fragilità lieve",5,"Rallentamento evidente; serve aiuto nelle attività strumentali complesse (finanze, trasporti, lavori domestici pesanti, farmaci)."],
+  ["6. Fragilità moderata",6,"Serve aiuto in tutte le attività fuori casa e nella gestione della casa; difficoltà con le scale, aiuto per il bagno, a volte per vestirsi."],
+  ["7. Fragilità grave",7,"Completamente dipendente per la cura della persona (per cause fisiche o cognitive), ma stabile e senza alto rischio di morte entro circa 6 mesi."],
+  ["8. Fragilità molto grave",8,"Completamente dipendente e vicino alla fine della vita; non si riprenderebbe nemmeno da una malattia lieve."],
+  ["9. Malato terminale",9,"Vicino alla fine della vita, con aspettativa di vita inferiore a 6 mesi e senza altra fragilità grave."]
+ ]}],
+ calc:s=>{
+  const x=ans[s.id].cfs;
+  if(x===undefined)return {lab:"CFS",main:"–",lvl:"na",text:"Seleziona un livello."};
+  const v=s.items[0].o[x][1];
+  const lvl=v<=3?"ok":(v===4?"warn":"bad");
+  const text=v<=3?"Paziente non fragile.":(v===4?"Fragilità molto lieve: livello da monitorare, a rischio di evoluzione.":"Paziente fragile (CFS ≥5): rischio aumentato di mortalità, complicanze, delirium e istituzionalizzazione.");
+  return {lab:"CFS",main:String(v),lvl,text,short:`livello ${v} su 9`,
+   act:v>=5?["CFS ≥5: valutazione geriatrica multidimensionale, discussione condivisa degli obiettivi di cura e prevenzione del delirium."]:[]};
+ }}
+];
+
+/* ---------- Stato ---------- */
+const ans={},touched={},R={};
+SC.forEach(s=>{
+  ans[s.id]={};
+  if(s.items){
+    s.items.forEach((it,i)=>{if(!it.sec&&!it.k)it.k="i"+i;});
+    if(s.def!==undefined)s.items.forEach(it=>{if(!it.sec)ans[s.id][it.k]=0;});
+  }
+});
+function sumItems(s){
+  let sum=0,n=0,N=0;
+  s.items.forEach(it=>{
+    if(it.sec||it.nosc)return; N++;
+    const a=ans[s.id][it.k];
+    if(a!==undefined){sum+=it.o[a][1];n++;}
+  });
+  return {sum,n,N};
+}
+
+/* ---------- Costruzione interfaccia ---------- */
+const nav=$("#nav"), main=$("#main");
+[["s","Chirurgia e multidisciplinare"],["a","Anestesia"]].forEach(([g,t])=>{
+  const d=document.createElement("div"); d.className="grp";
+  d.innerHTML=`<span class="gt">${t}</span>`;
+  SC.filter(s=>s.g===g).forEach(s=>d.insertAdjacentHTML("beforeend",
+    `<button type="button" class="nv" data-id="${s.id}"><span class="dot" data-l="na"></span><span class="nm">${s.name}</span><span class="ns"></span></button>`));
+  nav.appendChild(d);
+});
+nav.insertAdjacentHTML("beforeend",`<div class="grp"><span class="gt">Insieme</span><button type="button" class="nv" data-id="summary"><span class="dot" data-l="info"></span><span class="nm">Riepilogo</span></button></div>`);
+
+const barHTML=`<div class="bar" data-l="na"><div class="bn"><span class="bl"></span><span class="bv"></span></div><p class="bt"></p></div>`;
+
+SC.forEach(s=>{
+  const v=document.createElement("section");
+  v.className="view"; v.id="v-"+s.id; v.hidden=true;
+  v.innerHTML=`<h2>${s.name}</h2><p class="sub">${s.sub}</p><p class="intro">${s.intro}</p><form class="q" data-id="${s.id}" onsubmit="return false"></form>${barHTML}`;
+  const f=$("form",v);
+  if(s.custom)buildNSQIP(f,s); else buildItems(f,s);
+  main.appendChild(v);
+});
+const sv=document.createElement("section"); sv.className="view"; sv.id="v-summary"; sv.hidden=true; main.appendChild(sv);
+
+function buildItems(f,s){
+  s.items.forEach(it=>{
+    if(it.sec){f.insertAdjacentHTML("beforeend",`<h3 class="sec">${it.sec}</h3>`);return;}
+    const col=it.o.some(o=>o[2])||it.o.length>3||it.o.some(o=>o[0].length>30);
+    const row=s.row&&!col&&!it.h;
+    const cur=ans[s.id][it.k];
+    const gid=`${s.id}-${it.k}`;
+    const opts=it.o.map((o,j)=>`<label class="o"><input type="radio" name="${s.id}|${it.k}" value="${j}"${cur===j?" checked":""}><span>${o[0]}${o[2]?`<small>${o[2]}</small>`:""}</span></label>`).join("");
+    f.insertAdjacentHTML("beforeend",`<div class="qi${row?" row":""}" role="radiogroup" aria-labelledby="${gid}"><p class="qt" id="${gid}">${it.t}</p>${it.h?`<p class="hint">${it.h}</p>`:""}<div class="opts${col?" col":""}">${opts}</div></div>`);
+  });
+}
+function buildNSQIP(f,s){
+  const fld=x=>{
+    if(x.o)return `<label>${x.t}<select data-k="${x.k}"><option value="">Seleziona</option>${x.o.map(o=>`<option value="${o}">${o}</option>`).join("")}</select></label>`;
+    return `<label>${x.t}<input type="${x.type||"number"}" data-k="${x.k}" ${x.type==="text"?"":'inputmode="decimal" min="0"'} autocomplete="off"></label>`;
+  };
+  f.innerHTML=`<div class="grid2">${NS_FIELDS.map(fld).join("")}<div><span style="font-size:.9rem;font-weight:700">BMI calcolato</span><div class="readout" id="bmi">–</div></div></div>
+  <h3 class="sec">Risultati dal calcolatore ufficiale</h3>
+  <p class="note">Inserisci le variabili nel <a href="https://riskcalculator.facs.org/RiskCalculator/" target="_blank" rel="noopener">calcolatore ACS NSQIP</a> e riporta qui le percentuali ottenute. Il calcolatore indica anche il rischio rispetto alla media dei casi simili.</p>
+  <div class="grid2">${NS_RES.map(x=>`<label>${x.t}<input type="number" data-k="${x.k}" inputmode="decimal" min="0" autocomplete="off"></label>`).join("")}</div>`;
+}
+
+/* ---------- Logica ---------- */
+function refresh(id){
+  const s=SC.find(x=>x.id===id); const r=R[id]=s.calc(s);
+  const bar=$("#v-"+id+" .bar"); bar.dataset.l=r.lvl;
+  $(".bl",bar).textContent=r.lab;
+  const bv=$(".bv",bar); bv.textContent=r.main; bv.classList.toggle("long",String(r.main).length>6);
+  $(".bt",bar).innerHTML=`<strong>${LV[r.lvl]}.</strong> ${r.text}`;
+  const nv=$(`.nv[data-id="${id}"]`);
+  const on=touched[id]&&r.lvl!=="na";
+  $(".dot",nv).dataset.l=on?r.lvl:"na";
+  $(".ns",nv).textContent=on?r.main:"";
+}
+function handle(e){
+  const t=e.target, f=t.closest("form.q"); if(!f)return;
+  const id=f.dataset.id; touched[id]=true;
+  if(t.type==="radio")ans[id][t.name.split("|")[1]]=+t.value;
+  else if(t.dataset.k){ans[id][t.dataset.k]=t.value;}
+  if(id==="nsqip"){
+    const h=parseFloat(ans.nsqip.h),w=parseFloat(ans.nsqip.w);
+    $("#bmi").textContent=(h>0&&w>0)?fmt(w/Math.pow(h/100,2),1)+" kg/m²":"–";
+  }
+  refresh(id);
+}
+main.addEventListener("input",handle);
+main.addEventListener("change",handle);
+
+function show(id){
+  $$(".view").forEach(v=>v.hidden=v.id!=="v-"+id);
+  $$(".nv").forEach(b=>{b.dataset.id===id?b.setAttribute("aria-current","page"):b.removeAttribute("aria-current")});
+  if(id==="summary")renderSummary();
+  window.scrollTo(0,0);
+  try{$(`.nv[data-id="${id}"]`).scrollIntoView({inline:"center",block:"nearest"});}catch(e){}
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".nv,[data-go]"); if(b)show(b.dataset.id||b.dataset.go);
+});
+
+/* ---------- Riepilogo ---------- */
+function summaryText(){
+  const pid=$("#pid").value.trim(), d=$("#pdate").value;
+  let t=`PREHABILITATION: riepilogo scale di valutazione\nPaziente: ${pid||"non indicato"}\nData: ${d||"non indicata"}\n`;
+  [["s","Chirurgia e multidisciplinare"],["a","Anestesia"]].forEach(([g,n])=>{
+    t+=`\n${n}\n`;
+    SC.filter(s=>s.g===g).forEach(s=>{
+      const r=R[s.id];
+      t+=`- ${s.name}: ${touched[s.id]?`${r.short||r.main} (${LV[r.lvl]})`:"non compilato"}\n`;
+    });
+  });
+  const acts=collectActs();
+  if(acts.length)t+=`\nSpunti di intervento\n`+acts.map(a=>`- ${a}`).join("\n")+"\n";
+  return t;
+}
+function collectActs(){
+  const out=[]; SC.forEach(s=>{if(touched[s.id]&&R[s.id].act)out.push(...R[s.id].act);}); return out;
+}
+function renderSummary(){
+  const row=s=>{
+    const r=R[s.id], on=touched[s.id];
+    const l=on?r.lvl:"na";
+    return `<button type="button" class="sr" data-go="${s.id}"><span class="sn">${s.name}</span><span class="sv">${on?(r.short||r.main):"Non compilato"}</span><span class="chip" data-l="${l}"><i class="dot" data-l="${l}"></i>${on?LV[r.lvl]:"Non compilato"}</span></button>`;
+  };
+  const done=SC.filter(s=>touched[s.id]&&R[s.id].lvl!=="na").length;
+  const acts=collectActs();
+  $("#v-summary").innerHTML=`<h2>Riepilogo</h2><p class="sub">${done} scale su ${SC.length} completate. Tocca una riga per tornare alla scala.</p>
+   <h3 class="grpt">Chirurgia e multidisciplinare</h3>${SC.filter(s=>s.g==="s").map(row).join("")}
+   <h3 class="grpt">Anestesia</h3>${SC.filter(s=>s.g==="a").map(row).join("")}
+   <h3 class="grpt">Spunti di intervento</h3>
+   ${acts.length?`<ul class="acts">${acts.map(a=>`<li>${a}</li>`).join("")}</ul><p class="sub" style="margin-top:8px">Indicazioni orientative generate dai punteggi: la decisione spetta al clinico.</p>`:`<p class="sub">Nessuno spunto finora: compila le scale per vederli qui.</p>`}
+   <div class="tools"><button type="button" class="btn" id="copy">Copia riepilogo</button><button type="button" class="btn alt danger" id="reset">Azzera tutto</button></div>
+   <textarea id="sumtxt" readonly hidden aria-label="Testo del riepilogo"></textarea>`;
+  $("#copy").onclick=async()=>{
+    const txt=summaryText(), b=$("#copy");
+    try{await navigator.clipboard.writeText(txt); b.textContent="Copiato";setTimeout(()=>b.textContent="Copia riepilogo",1800);}
+    catch(e){const ta=$("#sumtxt"); ta.value=txt; ta.hidden=false; ta.focus(); ta.select();}
+  };
+  let armed=false;
+  $("#reset").onclick=e=>{
+    const b=e.currentTarget;
+    if(!armed){armed=true;b.textContent="Conferma azzeramento";setTimeout(()=>{armed=false;if(b.isConnected)b.textContent="Azzera tutto";},4000);return;}
+    resetAll();
+  };
+}
+function resetAll(){
+  SC.forEach(s=>{
+    ans[s.id]={}; touched[s.id]=false;
+    if(s.items&&s.def!==undefined)s.items.forEach(it=>{if(!it.sec)ans[s.id][it.k]=0;});
+    const f=$(`#v-${s.id} form`);
+    $$("input,select",f).forEach(i=>{
+      if(i.type==="radio"){const [,k]=i.name.split("|"); i.checked=(ans[s.id][k]===+i.value);}
+      else i.value="";
+    });
+    refresh(s.id);
+  });
+  $("#bmi").textContent="–"; $("#pid").value="";
+  renderSummary();
+}
+
+$("#pdate").value=new Date().toLocaleDateString("sv-SE");
+SC.forEach(s=>refresh(s.id));
+show("nsqip");
+</script>
+</body>
+</html>
