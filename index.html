@@ -135,6 +135,25 @@ select{appearance:auto}
 textarea{width:100%;min-height:200px;font:inherit;font-size:.9rem;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:10px;margin-bottom:20px}
 .foot{margin:24px 0 0;color:var(--muted);font-size:.84rem;max-width:80ch}
 .foot p{margin:6px 0}
+
+#report{display:none}
+@media print{
+  @page{margin:15mm}
+  html,body{background:#fff !important;color:#000 !important}
+  .app{display:none !important}
+  #report{display:block;font:11pt/1.4 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;color:#000;background:#fff}
+  #report h1{font-size:17pt;margin:0 0 4pt}
+  #report h2{font-size:13pt;margin:16pt 0 4pt}
+  #report .rm{margin:0 0 10pt}
+  #report table{width:100%;border-collapse:collapse;font-size:10pt}
+  #report th,#report td{border:1px solid #888;padding:5pt 6pt;vertical-align:top;text-align:left}
+  #report th{background:#e8eeef}
+  #report tr{break-inside:avoid}
+  #report .g td{background:#d6e3e6;font-weight:700}
+  #report ul{margin:4pt 0 0;padding-left:16pt}
+  #report li{margin:3pt 0}
+  #report .rf{margin-top:14pt;font-size:9pt;color:#333}
+}
 </style>
 </head>
 <body>
@@ -158,6 +177,7 @@ textarea{width:100%;min-height:200px;font:inherit;font-size:.9rem;background:var
   </footer>
 </div>
 
+<div id="report" aria-hidden="true"></div>
 <script>
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -401,7 +421,7 @@ const SC=[
   if(sum>=2)act.push("RCRI ≥2: rischio cardiaco elevato, valutare ottimizzazione terapeutica e monitoraggio peri-operatorio intensivo.");
   return {lab:"RCRI",main:`${sum}${sum>=3?"+":""}`,lvl,
    text:`Rischio di eventi cardiaci maggiori a 30 giorni: ${fmt(lee,1)}% nella coorte originale (Lee 1999), ${fmt(duc,1)}% nella coorte più recente (Duceppe 2017).`,
-   short:`${sum} punti (rischio ${fmt(duc,1)}%)`,act};
+   short:`${sum} ${sum===1?"punto":"punti"} (rischio ${fmt(duc,1)}%)`,act};
  }},
 
 {id:"stopbang",g:"a",name:"STOP-Bang",sub:"Screening delle apnee ostruttive del sonno",def:0,
@@ -588,8 +608,9 @@ function renderSummary(){
    <h3 class="grpt">Anestesia</h3>${SC.filter(s=>s.g==="a").map(row).join("")}
    <h3 class="grpt">Spunti di intervento</h3>
    ${acts.length?`<ul class="acts">${acts.map(a=>`<li>${a}</li>`).join("")}</ul><p class="sub" style="margin-top:8px">Indicazioni orientative generate dai punteggi: la decisione spetta al clinico.</p>`:`<p class="sub">Nessuno spunto finora: compila le scale per vederli qui.</p>`}
-   <div class="tools"><button type="button" class="btn" id="copy">Copia riepilogo</button><button type="button" class="btn alt danger" id="reset">Azzera tutto</button></div>
+   <div class="tools"><button type="button" class="btn" id="print">Stampa o salva PDF</button><button type="button" class="btn alt" id="copy">Copia riepilogo</button><button type="button" class="btn alt danger" id="reset">Azzera tutto</button></div>
    <textarea id="sumtxt" readonly hidden aria-label="Testo del riepilogo"></textarea>`;
+  $("#print").onclick=doPrint;
   $("#copy").onclick=async()=>{
     const txt=summaryText(), b=$("#copy");
     try{await navigator.clipboard.writeText(txt); b.textContent="Copiato";setTimeout(()=>b.textContent="Copia riepilogo",1800);}
@@ -616,6 +637,28 @@ function resetAll(){
   $("#bmi").textContent="–"; $("#pid").value="";
   renderSummary();
 }
+
+
+/* ---------- Stampa / PDF ---------- */
+function esc(x){return String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function buildReport(){
+  const pid=$("#pid").value.trim(), d=$("#pdate").value;
+  const dd=d?d.split("-").reverse().join("/"):"non indicata";
+  const rows=g=>SC.filter(s=>s.g===g).map(s=>{
+    const r=R[s.id], on=touched[s.id];
+    return `<tr><td><b>${esc(s.name)}</b></td><td>${on?esc(r.short||r.main):"Non compilato"}</td><td>${on?LV[r.lvl]:"Non compilato"}</td><td>${on?esc(r.text):""}</td></tr>`;
+  }).join("");
+  const acts=collectActs();
+  $("#report").innerHTML=`<h1>Prehabilitation: riepilogo scale di valutazione</h1>
+   <p class="rm">Paziente: <b>${esc(pid||"non indicato")}</b> &nbsp;&nbsp; Data valutazione: <b>${dd}</b></p>
+   <table><thead><tr><th>Scala</th><th>Risultato</th><th>Esito</th><th>Interpretazione</th></tr></thead><tbody>
+   <tr class="g"><td colspan="4">Chirurgia e multidisciplinare</td></tr>${rows("s")}
+   <tr class="g"><td colspan="4">Anestesia</td></tr>${rows("a")}</tbody></table>
+   ${acts.length?`<h2>Spunti di intervento</h2><ul>${acts.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>`:""}
+   <p class="rf">Indicazioni orientative generate dai punteggi: non sostituiscono il giudizio clinico. Documento generato il ${new Date().toLocaleString("it-IT")}.</p>`;
+}
+window.addEventListener("beforeprint",buildReport);
+function doPrint(){buildReport();try{window.print();}catch(e){}}
 
 $("#pdate").value=new Date().toLocaleDateString("sv-SE");
 SC.forEach(s=>refresh(s.id));
