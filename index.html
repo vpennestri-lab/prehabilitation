@@ -133,6 +133,8 @@ select{appearance:auto}
 .acts li{margin:6px 0}
 .tools{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 22px}
 textarea{width:100%;min-height:200px;font:inherit;font-size:.9rem;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:10px;margin-bottom:20px}
+.steps{margin:14px 0 0;padding-left:22px;max-width:72ch}
+.steps li{margin:8px 0}
 .foot{margin:24px 0 0;color:var(--muted);font-size:.84rem;max-width:80ch}
 .foot p{margin:6px 0}
 
@@ -153,6 +155,14 @@ textarea{width:100%;min-height:200px;font:inherit;font-size:.9rem;background:var
   #report ul{margin:4pt 0 0;padding-left:16pt}
   #report li{margin:3pt 0}
   #report .rf{margin-top:14pt;font-size:9pt;color:#333}
+  #report .blank{display:inline-block;min-width:70pt;border-bottom:1px solid #000;padding:0 4pt;text-align:center}
+  #report .blank.wide{min-width:170pt}
+  #report ol.sh{margin:10pt 0 0;padding-left:20pt;font-size:12pt}
+  #report ol.sh li{margin:8pt 0}
+  #report .nt{font-size:10pt;color:#333}
+  #report .circle{width:11cm;height:11cm;border:1.5pt solid #000;border-radius:50%;margin:10pt auto}
+  #report .tot{margin:14pt 0 4pt;font-size:12pt}
+  #report .alg{margin:0 0 0 14pt;font-size:11.5pt;line-height:1.6}
 }
 </style>
 </head>
@@ -160,7 +170,7 @@ textarea{width:100%;min-height:200px;font:inherit;font-size:.9rem;background:var
 <div class="app">
   <header class="top">
     <h1>Prehabilitation</h1>
-    <p class="lead">Valutazione pre-operatoria del paziente fragile o anziano candidato a chirurgia maggiore. Nove scale in un unico percorso, con riepilogo finale.</p>
+    <p class="lead">Valutazione pre-operatoria del paziente fragile o anziano candidato a chirurgia maggiore. Dieci scale in un unico percorso, con riepilogo finale.</p>
     <div class="pt">
       <label class="fld">Paziente (ID o iniziali)<input type="text" id="pid" autocomplete="off" placeholder="Evita il nome completo"></label>
       <label class="fld">Data valutazione<input type="date" id="pdate"></label>
@@ -172,7 +182,7 @@ textarea{width:100%;min-height:200px;font:inherit;font-size:.9rem;background:var
   </div>
   <footer class="foot">
     <p>Strumento di supporto alla valutazione: non sostituisce il giudizio clinico. Nessun dato viene salvato o inviato; chiudendo o ricaricando la pagina le risposte vanno perse.</p>
-    <p>Fonti: NSQIP (Bilimoria 2013, ACS), DASI (Hlatky 1989), SARC-F (Malmstrom 2013), AUDIT-C (Bush 1998), HADS (Zigmond e Snaith 1983), Frailty Index per accumulo di deficit (Searle 2008), RCRI (Lee 1999; Duceppe 2017), STOP-Bang (Chung 2008), Clinical Frailty Scale 2.0 (Rockwood, Dalhousie University).</p>
+    <p>Fonti: NSQIP (Bilimoria 2013, ACS), DASI (Hlatky 1989), SARC-F (Malmstrom 2013), AUDIT-C (Bush 1998), HADS (Zigmond e Snaith 1983), Frailty Index per accumulo di deficit (Searle 2008), RCRI (Lee 1999; Duceppe 2017), STOP-Bang (Chung 2008), Clinical Frailty Scale 2.0 (Rockwood, Dalhousie University), Mini-Cog (Borson 2000; © S. Borson, scheda dal modulo «Allegato 5»).</p>
     <p>La HADS è protetta da copyright (GL Assessment): verifica le condizioni di licenza per l'uso nella tua struttura. Le diciture di DASI, SARC-F, AUDIT-C, HADS e Frailty Index riprendono il modulo «Allegato 2. Valutazione di ingresso», con refusi corretti; le altre scale sono traduzioni di lavoro da confrontare con le versioni validate.</p>
   </footer>
 </div>
@@ -346,6 +356,25 @@ const SC=[
    short:`Ansia ${A}, depressione ${D}`,act};
  }},
 
+{id:"minicog",g:"s",name:"Mini-Cog",sub:"Screening cognitivo: ripetizione di tre parole e test dell'orologio",
+ intro:"Scheda di valutazione neuro-psicologica (Allegato 5). Segui i tre passaggi, poi riporta qui il risultato. Puoi stampare la scheda con il cerchio per l'orologio.",
+ pre:`<ol class="steps"><li><b>Ripetizione.</b> Dire al paziente: «Ascolti e ripeta le seguenti parole: MELA – OROLOGIO – MONETA». Sono ammessi fino a tre tentativi, poi si prosegue.</li><li><b>Test dell'orologio.</b> Il paziente disegna dentro il cerchio i numeri e poi le lancette in modo da indicare le 11:10. L'orologio è normale se i numeri sono nella sequenza e nelle posizioni corrette e le lancette indicano l'orario richiesto. La consegna si può ripetere: non è una prova di memoria.</li><li><b>Richiamo.</b> Chiedere al paziente di ripetere le tre parole, senza suggerimenti.</li></ol><p class="note"><strong>Interpretazione.</strong> 3/3 parole: negativo (STOP). 1–2/3 parole: negativo se l'orologio è normale, positivo se non lo è. 0/3 parole: positivo (deterioramento cognitivo).</p><div class="tools"><button type="button" class="btn" data-act="printsheet">Stampa la scheda</button><a class="btn alt" href="mini-cog.pdf" target="_blank" rel="noopener">Apri il PDF</a></div>`,
+ items:[
+  {k:"rec",inl:true,t:"Parole ripetute esattamente (richiamo)",o:[["0 su 3",0],["1 su 3",1],["2 su 3",2],["3 su 3",3]]},
+  {k:"clock",inl:true,t:"Test dell'orologio normale?",h:"Da compilare solo se le parole ripetute sono 1 o 2.",o:[["Sì",1],["No",0]]}
+ ],
+ calc:s=>{
+  /* ans memorizza l'indice dell'opzione: rec 0..3 = parole, clock 0 = Sì, 1 = No */
+  const a=ans[s.id]; const rec=a.rec;
+  const ACT="Mini-Cog positivo: approfondimento cognitivo (es. MoCA o MMSE), valutazione del rischio di delirium post-operatorio con misure di prevenzione e coinvolgimento del caregiver nella pianificazione.";
+  if(rec===undefined)return {lab:"Mini-Cog",main:"–",lvl:"na",text:"Indica quante parole il paziente ha ripetuto esattamente."};
+  if(rec===3)return {lab:"Mini-Cog",main:"3/3",lvl:"ok",text:"Tre parole su tre: test negativo (STOP).",short:"3/3 parole, negativo",act:[]};
+  if(rec===0)return {lab:"Mini-Cog",main:"0/3",lvl:"bad",text:"Nessuna parola ripetuta: test positivo, sospetto deterioramento cognitivo.",short:"0/3 parole, positivo",act:[ACT]};
+  if(a.clock===undefined)return {lab:"Mini-Cog",main:rec+"/3",lvl:"na",text:`${rec} parole su 3: indica se il test dell'orologio è normale.`};
+  if(a.clock===0)return {lab:"Mini-Cog",main:rec+"/3",lvl:"ok",text:`${rec} parole su 3 con orologio normale: test negativo (STOP).`,short:`${rec}/3 parole, orologio normale, negativo`,act:[]};
+  return {lab:"Mini-Cog",main:rec+"/3",lvl:"bad",text:`${rec} parole su 3 con orologio anormale: test positivo, sospetto deterioramento cognitivo.`,short:`${rec}/3 parole, orologio anormale, positivo`,act:[ACT]};
+ }},
+
 {id:"fi",g:"s",name:"Frailty Index",sub:"Indice di fragilità: 36 domande sì/no",row:true,
  intro:"Il punteggio totale è il numero di «Sì». L'indice è dato dai «Sì» divisi per le domande valutate; servono almeno 30 risposte. Il simbolo 🚩 indica un parametro sfavorevole.",
  items:[
@@ -511,7 +540,7 @@ const barHTML=`<div class="bar" data-l="na"><div class="bn"><span class="bl"></s
 SC.forEach(s=>{
   const v=document.createElement("section");
   v.className="view"; v.id="v-"+s.id; v.hidden=true;
-  v.innerHTML=`<h2>${s.name}</h2><p class="sub">${s.sub}</p><p class="intro">${s.intro}</p><form class="q" data-id="${s.id}" onsubmit="return false"></form>${barHTML}`;
+  v.innerHTML=`<h2>${s.name}</h2><p class="sub">${s.sub}</p><p class="intro">${s.intro}</p>${s.pre||""}<form class="q" data-id="${s.id}" onsubmit="return false"></form>${barHTML}`;
   const f=$("form",v);
   if(s.custom)buildNSQIP(f,s); else buildItems(f,s);
   main.appendChild(v);
@@ -521,7 +550,7 @@ const sv=document.createElement("section"); sv.className="view"; sv.id="v-summar
 function buildItems(f,s){
   s.items.forEach(it=>{
     if(it.sec){f.insertAdjacentHTML("beforeend",`<h3 class="sec">${it.sec}</h3>`);return;}
-    const col=it.o.some(o=>o[2])||it.o.length>3||it.o.some(o=>o[0].length>30);
+    const col=!it.inl&&(it.o.some(o=>o[2])||it.o.length>3||it.o.some(o=>o[0].length>30));
     const row=s.row&&!col&&!it.h;
     const cur=ans[s.id][it.k];
     const gid=`${s.id}-${it.k}`;
@@ -657,8 +686,25 @@ function buildReport(){
    ${acts.length?`<h2>Spunti di intervento</h2><ul>${acts.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>`:""}
    <p class="rf">Indicazioni orientative generate dai punteggi: non sostituiscono il giudizio clinico. Documento generato il ${new Date().toLocaleString("it-IT")}.</p>`;
 }
-window.addEventListener("beforeprint",buildReport);
-function doPrint(){buildReport();try{window.print();}catch(e){}}
+function buildSheet(){
+  const pid=$("#pid").value.trim(), d=$("#pdate").value;
+  const dd=d?d.split("-").reverse().join("/"):"";
+  $("#report").innerHTML=`<h1>Valutazione neuro-psicologica: Mini-Cog</h1>
+   <p class="rm">Paziente: <span class="blank wide">${esc(pid)}</span> &nbsp;&nbsp; Data: <span class="blank">${dd}</span></p>
+   <ol class="sh"><li>Ascolti e ripeta le seguenti parole: <i>MELA – OROLOGIO – MONETA</i><br><span class="nt">(fino a tre tentativi, poi proseguire)</span></li>
+   <li><b>Test dell'orologio:</b> chiedere al paziente di disegnare all'interno del cerchio i numeri e poi le lancette in modo da indicare le <i>11:10</i></li></ol>
+   <div class="circle"></div>
+   <ol class="sh" start="3"><li>Chiedere al paziente di ripetere le tre parole precedenti, senza suggerimenti.</li></ol>
+   <p class="tot"><b>TOTALE</b> (numero di parole ripetute esattamente): <span class="blank"></span> /3</p>
+   <p class="alg"><i>Se 3/3 → STOP (negativo)<br>Se 1–2/3: test dell'orologio normale?<br>&nbsp;&nbsp;&nbsp;&nbsp;SÌ → STOP<br>&nbsp;&nbsp;&nbsp;&nbsp;NO → DETERIORAMENTO COGNITIVO<br>Se 0/3 → DETERIORAMENTO COGNITIVO</i></p>
+   <p class="rf">Orologio normale: numeri nella sequenza e nelle posizioni corrette, lancette sull'orario richiesto. Riportare il risultato nell'app Prehabilitation. Mini-Cog © S. Borson, uso clinico ed educativo.</p>`;
+}
+let pmode="report";
+window.addEventListener("beforeprint",()=>{pmode==="sheet"?buildSheet():buildReport();});
+window.addEventListener("afterprint",()=>{pmode="report";});
+function doPrint(){pmode="report";buildReport();try{window.print();}catch(e){}}
+function printSheet(){pmode="sheet";buildSheet();try{window.print();}catch(e){pmode="report";}}
+document.addEventListener("click",e=>{if(e.target.closest('[data-act="printsheet"]'))printSheet();});
 
 $("#pdate").value=new Date().toLocaleDateString("sv-SE");
 SC.forEach(s=>refresh(s.id));
